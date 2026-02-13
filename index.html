@@ -27,11 +27,36 @@ h1 {
     margin-bottom: 10px;
 }
 
-/* Texto de “de parte de” */
 h2 {
     margin-top: 0;
     font-weight: normal;
     font-size: 18px;
+}
+
+/* Banner de premio */
+#banner {
+    display: none;
+    background-color: #ff4d4d;
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Banner de “ya no hay más regalos” */
+#bannerEnd {
+    display: none;
+    background-color: #ffa500; /* naranja */
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    text-align: center;
 }
 
 #scratch-card {
@@ -82,12 +107,22 @@ button {
     <h1>🎀 Rasca y Gana 🎀</h1>
     <h2>De parte de: Mireia</h2>
 
+    <!-- Banner de premio -->
+    <div id="banner">
+        Hoy ha sido tu día de suerte, mañana recibirás un detalle.
+    </div>
+
+    <!-- Banner de fin de regalos -->
+    <div id="bannerEnd">
+        Ya no hay más regalos, jejeje 🎁
+    </div>
+
     <div id="scratch-card">
-        <!-- Texto del premio -->
         <div id="prize">¡HAS GANADO!</div>
         <canvas id="canvas"></canvas>
     </div>
 
+    <button onclick="resetCard()">Volver a jugar</button>
 </div>
 
 <script>
@@ -95,11 +130,12 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const card = document.getElementById("scratch-card");
 const prize = document.getElementById("prize");
+const banner = document.getElementById("banner");
+const bannerEnd = document.getElementById("bannerEnd");
 
 canvas.width = card.offsetWidth;
 canvas.height = card.offsetHeight;
 
-// Capa gris para rascar
 ctx.fillStyle = "#C0C0C0";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -127,11 +163,9 @@ function scratch(e) {
     ctx.fill();
 }
 
-// Función para detectar que el premio se ha revelado
 function checkPrize() {
     if (prizeRevealed) return;
 
-    // Vamos a revelar siempre el premio
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     let scratched = 0;
     for (let i = 0; i < imageData.data.length; i += 4) {
@@ -139,12 +173,9 @@ function checkPrize() {
     }
     const scratchedPercentage = scratched / (canvas.width * canvas.height) * 100 / 4;
 
-    // Si se ha raspado cualquier cantidad, mostramos mensaje
     if (scratchedPercentage > 5) {
         prizeRevealed = true;
-        setTimeout(() => {
-            alert("Hoy ha sido tu día de suerte, mañana recibirás un detalle.");
-        }, 200); // pequeño retraso para que el rasgado sea visible
+        banner.style.display = "block";
     }
 }
 
@@ -152,7 +183,13 @@ function resetCard() {
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#C0C0C0";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Ocultamos el premio
     prizeRevealed = false;
+    banner.style.display = "none";
+
+    // Mostramos el banner de fin de regalos
+    bannerEnd.style.display = "block";
 }
 </script>
 
