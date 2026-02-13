@@ -24,7 +24,14 @@ body {
 }
 
 h1 {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+/* Texto de “de parte de” */
+h2 {
+    margin-top: 0;
+    font-weight: normal;
+    font-size: 18px;
 }
 
 #scratch-card {
@@ -34,6 +41,7 @@ h1 {
     border-radius: 15px;
     overflow: hidden;
     cursor: pointer;
+    margin-top: 20px;
 }
 
 #prize {
@@ -54,6 +62,7 @@ canvas {
     top: 0;
     left: 0;
 }
+
 button {
     margin-top: 20px;
     padding: 10px 20px;
@@ -71,20 +80,21 @@ button {
 
 <div class="container">
     <h1>🎀 Rasca y Gana 🎀</h1>
+    <h2>De parte de: Mireia</h2>
 
     <div id="scratch-card">
-        <!-- ✏️ EDITA AQUÍ EL TEXTO DEL PREMIO -->
-        <div id="prize">¡HAS GANADO UN PREMIO SORPRESA!</div>
+        <!-- Texto del premio -->
+        <div id="prize">¡HAS GANADO!</div>
         <canvas id="canvas"></canvas>
     </div>
 
-    <button onclick="resetCard()">Volver a jugar</button>
 </div>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const card = document.getElementById("scratch-card");
+const prize = document.getElementById("prize");
 
 canvas.width = card.offsetWidth;
 canvas.height = card.offsetHeight;
@@ -94,13 +104,14 @@ ctx.fillStyle = "#C0C0C0";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 let isDrawing = false;
+let prizeRevealed = false;
 
 canvas.addEventListener("mousedown", () => isDrawing = true);
-canvas.addEventListener("mouseup", () => isDrawing = false);
+canvas.addEventListener("mouseup", () => { isDrawing = false; checkPrize(); });
 canvas.addEventListener("mousemove", scratch);
 
 canvas.addEventListener("touchstart", () => isDrawing = true);
-canvas.addEventListener("touchend", () => isDrawing = false);
+canvas.addEventListener("touchend", () => { isDrawing = false; checkPrize(); });
 canvas.addEventListener("touchmove", scratch);
 
 function scratch(e) {
@@ -116,10 +127,32 @@ function scratch(e) {
     ctx.fill();
 }
 
+// Función para detectar que el premio se ha revelado
+function checkPrize() {
+    if (prizeRevealed) return;
+
+    // Vamos a revelar siempre el premio
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let scratched = 0;
+    for (let i = 0; i < imageData.data.length; i += 4) {
+        if (imageData.data[i+3] < 128) scratched++;
+    }
+    const scratchedPercentage = scratched / (canvas.width * canvas.height) * 100 / 4;
+
+    // Si se ha raspado cualquier cantidad, mostramos mensaje
+    if (scratchedPercentage > 5) {
+        prizeRevealed = true;
+        setTimeout(() => {
+            alert("Hoy ha sido tu día de suerte, mañana recibirás un detalle.");
+        }, 200); // pequeño retraso para que el rasgado sea visible
+    }
+}
+
 function resetCard() {
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#C0C0C0";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    prizeRevealed = false;
 }
 </script>
 
