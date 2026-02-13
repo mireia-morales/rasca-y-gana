@@ -36,7 +36,7 @@ h2 {
 /* Banner de premio */
 #banner {
     display: none;
-    background-color: #ff4d4d;
+    background-color: #ff4d4d; /* rojo */
     color: white;
     font-weight: bold;
     padding: 15px;
@@ -46,10 +46,10 @@ h2 {
     text-align: center;
 }
 
-/* Banner de “ya no hay más regalos” */
+/* Banner de fin de regalos */
 #bannerEnd {
     display: none;
-    background-color: #ffa500; /* naranja */
+    background-color: #ff0000; /* rojo intenso */
     color: white;
     font-weight: bold;
     padding: 15px;
@@ -109,12 +109,13 @@ button {
 
     <!-- Banner de premio -->
     <div id="banner">
-        Hoy ha sido tu día de suerte, mañana recibirás un detalle.
+        Hoy ha sido tu día de suerte, Diego. Mañana recibirás una ¡SORPRESA!
+        🎁🎁🎁🎁🎁
     </div>
 
     <!-- Banner de fin de regalos -->
     <div id="bannerEnd">
-        Ya no hay más regalos, jejeje 🎁
+        Ya no hay más regalos, jejeje 
     </div>
 
     <div id="scratch-card">
@@ -122,7 +123,7 @@ button {
         <canvas id="canvas"></canvas>
     </div>
 
-    <button onclick="resetCard()">Volver a jugar</button>
+    <button onclick="endGame()">Volver a jugar</button>
 </div>
 
 <script>
@@ -136,22 +137,24 @@ const bannerEnd = document.getElementById("bannerEnd");
 canvas.width = card.offsetWidth;
 canvas.height = card.offsetHeight;
 
+// Capa gris inicial
 ctx.fillStyle = "#C0C0C0";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 let isDrawing = false;
 let prizeRevealed = false;
+let gameEnded = false; // bandera para bloquear rascar
 
-canvas.addEventListener("mousedown", () => isDrawing = true);
-canvas.addEventListener("mouseup", () => { isDrawing = false; checkPrize(); });
+canvas.addEventListener("mousedown", () => { if(!gameEnded) isDrawing = true; });
+canvas.addEventListener("mouseup", () => { if(!gameEnded) { isDrawing = false; checkPrize(); } });
 canvas.addEventListener("mousemove", scratch);
 
-canvas.addEventListener("touchstart", () => isDrawing = true);
-canvas.addEventListener("touchend", () => { isDrawing = false; checkPrize(); });
+canvas.addEventListener("touchstart", () => { if(!gameEnded) isDrawing = true; });
+canvas.addEventListener("touchend", () => { if(!gameEnded) { isDrawing = false; checkPrize(); } });
 canvas.addEventListener("touchmove", scratch);
 
 function scratch(e) {
-    if (!isDrawing) return;
+    if (!isDrawing || gameEnded) return;
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
@@ -164,7 +167,7 @@ function scratch(e) {
 }
 
 function checkPrize() {
-    if (prizeRevealed) return;
+    if (prizeRevealed || gameEnded) return;
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     let scratched = 0;
@@ -179,20 +182,18 @@ function checkPrize() {
     }
 }
 
-function resetCard() {
-    ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = "#C0C0C0";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Ocultamos el premio
-    prizeRevealed = false;
-    banner.style.display = "none";
-
-    // Mostramos el banner de fin de regalos
+// Nueva función para terminar el juego
+function endGame() {
+    // Mostramos el mensaje final
+    banner.style.display = "none"; // ocultamos premio si estaba visible
     bannerEnd.style.display = "block";
+
+    // Bloqueamos rascar
+    gameEnded = true;
 }
 </script>
 
 </body>
 </html>
+
 
